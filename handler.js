@@ -8,9 +8,6 @@ module.exports.createUser = (event, context, callback) => {
 
   console.log("Event: " + JSON.stringify(event));
   var body = JSON.parse(event.body);
-  var memberId = body.wrmemberid;
-  console.log("Member: " + memberId);
-
   var username = body.username;
   var password = body.password;
   console.log("Starting createUser: " + username);
@@ -37,7 +34,6 @@ module.exports.createUser = (event, context, callback) => {
           MessageAction: 'SUPPRESS', //suppress the sending of an invitation to the user
           TemporaryPassword: password,
           UserAttributes: [
-            // {Name: 'name', Value: name}, 
             {Name: 'email', Value: username}, //using sign-in with email, so username is email
             {Name: 'email_verified', Value: 'true'}
             ]
@@ -45,7 +41,7 @@ module.exports.createUser = (event, context, callback) => {
         cognitoidentityserviceprovider.adminCreateUser(params, function(err, data) {
           if (err) {
             console.log('Failed to Create migrating user in User Pool: ' + username);
-            callback(err);
+            callback(err.message);
             return;               
           } else {
             //Successfully created the migrating user in the User Pool
@@ -91,8 +87,7 @@ module.exports.createUser = (event, context, callback) => {
                       const response = {
                         statusCode: 200,
                         body: JSON.stringify({
-                          message: data,
-                          input: event,
+                          message: data
                         }),
                       };
                     callback(null, response);  
@@ -153,8 +148,7 @@ module.exports.updateUser = (event, context, callback) => {
       const response = {
         statusCode: 200,
         body: JSON.stringify({
-          message: data,
-          input: event,
+          message: "Success"
         }),
       };
       callback(null, response);  // Tell client to retry sign-in
@@ -165,4 +159,37 @@ module.exports.updateUser = (event, context, callback) => {
 };
 
 
+module.exports.sessionUser = (event, context, callback) => {
+
+  console.log("Event: " + JSON.stringify(event));
+  var body = JSON.parse(event.body);
+  var username = body.username;
+  console.log("Starting sessionUser: " + username);
+
+  var cognitoidentityserviceprovider = new AWS.CognitoIdentityServiceProvider();
+
+  var params =  {
+    UserPoolId: USER_POOL_ID,
+    Username: username
+  };
+
+  cognitoidentityserviceprovider.adminGetUser(params, function(err, data) {
+    if (err) {
+      console.log('Failed to get attributes for: ' + username);
+      console.log(err);
+      callback(err);
+    } else {   // successful response
+      console.log('Successful response from AdminGetUser: ' + username);
+      const response = {
+        statusCode: 200,
+        body: JSON.stringify({
+          message: data
+        }),
+      };
+      callback(null, response);  // Tell client to retry sign-in
+      return;
+    }
+  });
+
+};
 
