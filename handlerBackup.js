@@ -1,5 +1,5 @@
 'use strict';
-var CLIENT_ID = '70o3qickmokfvlk7sjib4bdm7l';
+var CLIENT_ID = '46l4tcupm88jpnbedv6499fcu6';
 var USER_POOL_ID = 'us-east-1_fbOuIajds';
 var AWS = require('aws-sdk');
 AWS.config.update({region: 'us-east-1'});
@@ -49,7 +49,6 @@ module.exports.hello = (event, context, callback) => {
           } else {
             //Successfully created the migrating user in the User Pool
             console.log("Successful AdminCreateUser for migrating user: " + username);
-            console.log("Data back from successful user create: " + JSON.stringify(data));
 
             //Now sign in the migrated user to set the permanent password and confirm the user
             params = {
@@ -59,8 +58,7 @@ module.exports.hello = (event, context, callback) => {
               AuthParameters: {USERNAME: username, PASSWORD: password}
             };
 
-// SECRET_HASH: 'dsd2v6e9vgpb6jhj9pobk0bm9269d61kdd8j9qcbpde7s89t0b',
-
+            console.log("Data back from successful user create: " + JSON.stringify(data));
             cognitoidentityserviceprovider.adminInitiateAuth(params, function(signin_err, data) {
               if (signin_err) {
                 console.log('Failed to sign in migrated user: ' + username);
